@@ -11,18 +11,22 @@ fi
 
 # Build nginx + filter module.
 cd $ROOT/nginx
-# Pro memoria: --with-debug
-./auto/configure \
-    --prefix=$ROOT/script/test \
-    --with-http_v2_module \
-    --add-module=$ROOT
+if [ ! -f "Makefile" ]; then
+  # Pro memoria: --with-debug
+  ./auto/configure \
+      --prefix=$ROOT/script/test \
+      --with-http_v2_module \
+      --add-module=$ROOT
+fi
 make -j 16
 
 # Build brotli CLI.
 cd $ROOT/deps/brotli
-mkdir out
+mkdir -p out
 cd out
-cmake ..
+if [ ! -f "Makefile" ]; then
+  cmake ..
+fi
 make -j 16 brotli
 
 # Restore status-quo.

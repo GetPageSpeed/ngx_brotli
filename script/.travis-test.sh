@@ -47,6 +47,22 @@ expect_br_equal() {
   fi
 }
 
+expect_smaller_and_larger_file() {
+  smaller_file=$1
+  larger_file=$2
+  smaller_size=$(get_size $smaller_file)
+  larger_size=$(get_size $larger_file)
+  if [ $smaller_size -lt $larger_size ]; then
+    add_result "OK"
+  else
+    add_result "FAIL (file size)"
+  fi
+}
+
+get_size() {
+  stat --printf="%s" $1
+}
+
 ################################################################################
 
 # Start default server.
@@ -119,6 +135,14 @@ expect_equal $FILES/small.html tmp/ae-12.txt
 echo "Test: A-E: 'b'"
 $CURL -H 'Accept-encoding: b' -o tmp/ae-13.txt $SERVER/small.html
 expect_equal $FILES/small.html tmp/ae-13.txt
+
+echo "Test: dynamic compression"
+$CURL -H 'Accept-encoding: br' -o tmp/war-and-peace5.br $SERVER/level-test/war-and-peace.txt?level=5
+$CURL -H 'Accept-encoding: br' -o tmp/war-and-peace11.br $SERVER/level-test/war-and-peace.txt?level=11
+expect_br_equal $FILES/war-and-peace.txt tmp/war-and-peace5
+expect_br_equal $FILES/war-and-peace.txt tmp/war-and-peace11
+expect_smaller_and_larger_file tmp/war-and-peace5.br tmp/war-and-peace.br
+expect_smaller_and_larger_file tmp/war-and-peace11.br tmp/war-and-peace5.br
 
 echo $HR
 echo "Stopping default NGINX"
